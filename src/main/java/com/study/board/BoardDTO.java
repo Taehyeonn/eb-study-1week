@@ -7,7 +7,7 @@ public class BoardDTO {
     private long board_id;
     private String board_category;
     private String board_writer;
-    private int board_password;
+    private String board_password;
     private String board_title;
     private String board_content;
     private long board_view_count;
@@ -38,11 +38,11 @@ public class BoardDTO {
         this.board_writer = board_writer;
     }
 
-    public int getBoard_password() {
+    public String getBoard_password() {
         return board_password;
     }
 
-    public void setBoard_password(int board_password) {
+    public void setBoard_password(String board_password) {
         this.board_password = board_password;
     }
 

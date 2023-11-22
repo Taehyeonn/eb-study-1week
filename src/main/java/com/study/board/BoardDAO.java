@@ -95,6 +95,7 @@ public class BoardDAO {
                 dto.setBoard_category(rs.getString("board_category"));
                 dto.setBoard_title(rs.getString("board_title"));
                 dto.setBoard_writer(rs.getString("board_writer"));
+                dto.setBoard_password(rs.getString("board_password"));
                 dto.setBoard_content(rs.getString("board_content"));
                 dto.setBoard_registration_date(rs.getTimestamp("board_registration_date"));
                 dto.setBoard_modification_date(rs.getTimestamp("board_modification_date"));
@@ -127,4 +128,108 @@ public class BoardDAO {
         }
 
     }
+
+    //insert
+    public void insertBoard(BoardDTO dto) {
+        String sql = "insert into board values(default, ?, ?, ?, ?, ?, default, default, default)";
+
+        Connection conn = mysqlConnection.getConnection();
+        PreparedStatement pstmt=null;
+
+        try {
+            pstmt = conn.prepareStatement(sql);
+
+            //바인딩
+            pstmt.setString(1, dto.getBoard_category());
+            pstmt.setString(2, dto.getBoard_writer());
+            pstmt.setString(3, dto.getBoard_password());
+            pstmt.setString(4, dto.getBoard_title());
+            pstmt.setString(5, dto.getBoard_content());
+            pstmt.execute();
+
+        } catch (SQLException e) {
+            System.out.println("insertBoard 오류"+e.getMessage());
+        } finally {
+            mysqlConnection.dbClose(pstmt, conn);
+        }
+    }
+
+    //삭제
+    public void deleteBoard(String boardId) {
+
+        String sql="delete from board where board_id=?";
+
+        Connection conn = mysqlConnection.getConnection();
+        PreparedStatement pstmt=null;
+
+        try {
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, boardId);
+            pstmt.execute();
+        } catch (SQLException e) {
+            System.out.println("deleteBoard 오류"+e.getMessage());
+        } finally {
+            mysqlConnection.dbClose(pstmt, conn);
+        }
+    }
+
+    public void getPassword(String boardId) {
+
+        String sql="select board_password from board where board_id=?";
+
+        Connection conn = mysqlConnection.getConnection();
+        PreparedStatement pstmt=null;
+
+        try {
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, boardId);
+            pstmt.execute();
+        } catch (SQLException e) {
+            System.out.println("deleteBoard 오류"+e.getMessage());
+        } finally {
+            mysqlConnection.dbClose(pstmt, conn);
+        }
+    }
+
+    public boolean checkPassword(String boardId, String password) {
+        System.out.println("BoardDAO.checkPassword");
+
+        BoardDTO findBoard = getData(boardId);
+//        getPassword(boardId);
+
+        System.out.println("findBoard = " + findBoard);
+
+        String dbPassword = findBoard.getBoard_password();
+
+        System.out.println("dbPassword = " + dbPassword);
+
+        return dbPassword.equals(password);
+    }
+
+
+    //수정
+    public void modifyBoard(String BoardId, BoardDTO dto) {
+
+        String sql="update board set board_writer=?, board_title=?, board_content=? where board_id=?";
+
+        Connection conn = mysqlConnection.getConnection();
+        PreparedStatement pstmt=null;
+
+        try {
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, dto.getBoard_writer());
+            pstmt.setString(2, dto.getBoard_title());
+            pstmt.setString(3, dto.getBoard_content());
+            pstmt.setString(4, BoardId);
+
+            pstmt.execute();
+        } catch (SQLException e) {
+            System.out.println("modifyBoard 오류"+e.getMessage());
+        } finally {
+            mysqlConnection.dbClose(pstmt, conn);
+        }
+    }
+
+
+
 }

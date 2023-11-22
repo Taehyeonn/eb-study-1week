@@ -17,7 +17,7 @@ public class MysqlConnection {
         } catch (ClassNotFoundException e) {
             System.out.println("mysql 드라이버 오류" + e.getMessage());
         } catch (SQLException e) {
-            System.out.println("mysql Local 연결 실패" + e.getMessage());
+            System.out.println("mysql 연결 실패" + e.getMessage());
         }
         return conn;
     }
