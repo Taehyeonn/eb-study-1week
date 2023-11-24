@@ -1,4 +1,4 @@
-package com.study.board;
+package com.study.dto;
 
 import java.sql.Timestamp;
 

@@ -1,5 +1,5 @@
-<%@ page import="com.study.board.BoardDAO" %>
-<%@ page import="com.study.board.BoardDTO" %>
+<%@ page import="com.study.dao.BoardDAO" %>
+<%@ page import="com.study.dto.BoardDTO" %>
 <%@ page import="java.text.SimpleDateFormat" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
@@ -16,12 +16,24 @@
                 alert("ID와 비밀번호를 모두 입력해주세요.");
                 return false; // 폼 제출 중지
             }
+
         }
     </script>
 </head>
 <%
     // 파라미터에서 id 받아오기
     String boardId = request.getParameter("id");
+    String pageNum = request.getParameter("pageNum");
+
+    String status = "";
+    if (request.getParameter("status") != null) {
+        status = request.getParameter("status");
+    }
+
+    if (status.isEmpty()) {
+        System.out.println("비정상접근");
+        response.sendRedirect("list.jsp?pageNum"+pageNum);
+    }
 
     //dao 선언
     BoardDAO dao = new BoardDAO();
@@ -37,7 +49,8 @@
 %>
 <body>
 <h1>게시글 수정</h1>
-<form action="modifyAction.jsp?id=<%= boardId %>" method="post" onsubmit="return valid()" >
+
+<form action="modifyAction.jsp?id=<%= boardId %>&pageNum=<%= pageNum %>" method="post" onsubmit="return valid()" >
     <span>카테고리:</span>
     <span><%= boardDto.getBoard_category() %></span>
     <br>
@@ -68,7 +81,7 @@
     <label for="file">파일 첨부:</label>
     <input type="file" name="file" id="file">
     <br>
-    <button type="button" onclick="location.href='list.jsp'">취소</button>
+    <button type="button" onclick="location.href='view.jsp?id=<%= boardId %>&pageNum=<%= pageNum %>'">취소</button>
     <input type="submit" id="submitButton" value="수정">
 </form>
 </body>

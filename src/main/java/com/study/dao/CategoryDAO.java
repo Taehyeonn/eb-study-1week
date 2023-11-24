@@ -1,6 +1,7 @@
-package com.study.board;
+package com.study.dao;
 
 import com.study.connection.MysqlConnection;
+import com.study.dto.CategoryDTO;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

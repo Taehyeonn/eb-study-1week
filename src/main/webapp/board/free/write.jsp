@@ -1,5 +1,5 @@
-<%@ page import="com.study.board.CategoryDAO" %>
-<%@ page import="com.study.board.CategoryDTO" %>
+<%@ page import="com.study.dao.CategoryDAO" %>
+<%@ page import="com.study.dto.CategoryDTO" %>
 <%@ page import="java.util.List" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
@@ -8,6 +8,20 @@
     //category 불러오기
     CategoryDAO cateDAO = new CategoryDAO();
     List<CategoryDTO> cateList = cateDAO.getCategoryList();
+
+    String pageNum = (request.getParameter("pageNum") != null) ? request.getParameter("pageNum") : "1";
+//    String status = "";
+//    if (request.getParameter("status") != null) {
+//        status = request.getParameter("status");
+//    }
+//    String errorMessage = (String) request.getAttribute("errorMessage");
+//    String errorMessage = (String) request.getSession().getAttribute("errorMessage");
+
+    String errorMessage = (String) session.getAttribute("errorMessage");
+    System.out.println("errorMessage = " + errorMessage);
+
+
+
 
 %>
 
@@ -28,13 +42,25 @@
                 alert("필수 항목을 입력해주세요.");
                 return false; // 폼 제출 중지
             }
+
+            if (password !== confirmPassword) {
+                alert("비밀번호가 다릅니다.");
+                return false;
+            }
         }
 
     </script>
 </head>
 <body>
 <h1>게시글 추가</h1>
-    <form action="writeAction.jsp" method="post" onsubmit="return writeValidation()" >
+
+<%-- 유효성 검사 실패시 오류 메세지 --%>
+<% if (errorMessage != null) { %>
+<h2><%= errorMessage %></h2>
+<% }
+    session.removeAttribute("errorMessage"); %>
+
+    <form action="writeAction.jsp?pageNum=<%= pageNum %>" method="post" onsubmit="return writeValidation()" >
         <label for="category">카테고리:</label>
         <select name="category" id="category">
             <option value="" disabled selected>카테고리 선택</option>
@@ -65,7 +91,7 @@
         <label for="file">파일 첨부:</label>
         <input type="file" name="file" id="file">
         <br>
-        <button type="button" onclick="location.href='list.jsp'">취소</button>
+        <button type="button" onclick="location.href='list.jsp?pageNum<%= pageNum %>'">취소</button>
         <input type="submit" id="submitButton" value="글쓰기">
 
     </form>

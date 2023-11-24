@@ -1,4 +1,4 @@
-package com.study.board;
+package com.study.dto;
 
 public class CategoryDTO {
     private String cate_name;

@@ -1,0 +1,142 @@
+.container {
+    width:1000px;
+    height:700px;
+    border: 1px solid black;
+    padding: 20px;
+}
+
+.align-left {
+    text-align: left;
+}
+
+.align-right {
+    text-align: right;
+}
+
+.align-center {
+    text-align: center;
+}
+
+.list_search {
+    width:auto;
+    height: 25px;
+    border: 1px solid black;
+    padding: 5px;
+}
+
+.list_table {
+    width:auto;
+}
+
+.list_table {
+    width: auto;
+    table-layout: fixed;
+    text-align: center;
+}
+
+.list_table td:first-child {
+    width: 15%;
+}
+
+.list_table td:nth-child(2) {
+    width: 5%;
+}
+
+.list_table td:nth-child(3) {
+    width: 40%;
+    text-align: left;
+}
+
+.list_table td:nth-child(4) {
+    width: 10%;
+}
+
+.list_table td:nth-child(5) {
+    width: 10%;
+}
+
+.list_table td:nth-child(6) {
+    width: 20%;
+}
+
+.list_table td:nth-child(7) {
+    width: 20%;
+}
+
+.list_table td:not(:first-child):not(:nth-child(3)) {
+    width: auto;
+}
+/*.list_table tr:nth-child(1) {*/
+/*    border-top: 1px solid rgb(128, 128, 128);*/
+/*    border-bottom: 2px solid black;*/
+/*}*/
+
+/*.list_table tr:nth-child(2) {*/
+/*    border-bottom: 1px solid rgb(128, 128, 128);*/
+/*}*/
+
+.list_page {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.list_button {
+    text-align: right;
+}
+
+
+.view_title {
+    border-bottom: 2px solid black;
+    display: flex;
+    flex-direction: column;
+}
+
+.view_title div:nth-child(1) span:nth-child(2),
+.view_title div:nth-child(1) span:nth-child(3),
+.view_title div:nth-child(2) span:nth-child(3) {
+    margin-left: auto;
+}
+
+.view_title div {
+    display: flex;
+}
+
+.view_content{
+    width:auto;
+    height:200px;
+    border: 1px solid black;
+    margin-top: 10px;
+    padding: 10px;
+}
+
+.view_comment {
+    width:auto;
+    background-color: beige;
+    padding: 5px;
+
+}
+
+.comment_list {
+    border-bottom: 1px solid rgb(128, 128, 128);
+    padding: 5px;
+}
+
+.comment_list p{
+    font-size: 0.7em;
+    padding: 1px;
+    margin: 1px;
+}
+
+.comment_input {
+    padding: 5px;
+}
+
+.comment_input form{
+    padding: 5px;
+}
+
+.view_buttons {
+    /*align-items: center;*/
+    text-align: center;
+    margin-top: 7px;
+}

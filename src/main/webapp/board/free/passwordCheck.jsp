@@ -1,4 +1,4 @@
-<%@ page import="com.study.board.BoardDTO" %>
+<%@ page import="com.study.dto.BoardDTO" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
 <html>
@@ -6,8 +6,15 @@
     <title>Title</title>
 </head>
 <%
+    String status = "";
+    if (request.getParameter("status") != null) {
+        status = request.getParameter("status");
+    }
+
     String boardId = request.getParameter("id");
-    String status = request.getParameter("status");
+    String pageNum = request.getParameter("pageNum");
+    String type = request.getParameter("type");
+
     String message = "비밀번호 확인";
 
     if (status.equals("fail")) {
@@ -18,10 +25,10 @@
 %>
 <body>
 <h2><%= message %></h2>
-<form action="deleteAction.jsp?id=<%= boardId %>" method="post">
+<form action="passwordCheckAction.jsp?id=<%= boardId %>&pageNum=<%= pageNum %>&type=<%= type %>" method="post">
     <label for="password">비밀번호:</label>
     <input type="password" name="password" id="password" placeholder="비밀번호를 입력해주세요.">
-    <input type="submit"  value="글쓰기">
+    <input type="submit" value="확인">
 </form>
 </body>
 </html>

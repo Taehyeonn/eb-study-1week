@@ -1,6 +1,7 @@
-package com.study.board;
+package com.study.dao;
 
 import com.study.connection.MysqlConnection;
+import com.study.dto.BoardDTO;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -13,42 +14,7 @@ public class BoardDAO {
 
     MysqlConnection mysqlConnection = new MysqlConnection();
 
-    // 게시글 목록 조회 메서드
-    public List<BoardDTO> getBoardList() {
-
-        List<BoardDTO> list = new ArrayList<>();
-        Connection conn = mysqlConnection.getConnection();
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        String sql = "SELECT * FROM board";
-
-        try {
-            pstmt = conn.prepareStatement(sql);
-            rs = pstmt.executeQuery();
-            while (rs.next()) {
-                BoardDTO dto = new BoardDTO();
-                dto.setBoard_id(rs.getInt("board_id"));
-                dto.setBoard_category(rs.getString("board_category"));
-                dto.setBoard_title(rs.getString("board_title"));
-                dto.setBoard_writer(rs.getString("board_writer"));
-                dto.setBoard_content(rs.getString("board_content"));
-                dto.setBoard_registration_date(rs.getTimestamp("board_registration_date"));
-                dto.setBoard_modification_date(rs.getTimestamp("board_modification_date"));
-                dto.setBoard_view_count(rs.getInt("board_view_count"));
-                list.add(dto);
-                System.out.println("getBoardList 성공");
-            }
-
-        } catch (SQLException e) {
-            System.out.println("getBoardList 에러 = " + e.getMessage());
-        } finally {
-            mysqlConnection.dbClose(rs, pstmt, conn);
-            System.out.println("getBoardList 종료 성공");
-        }
-
-        return list;
-    }
-
+    //게시글 총 갯수
     public int getTotalCount() {
 
         int totalCount = 0;
@@ -64,7 +30,6 @@ public class BoardDAO {
             if (rs.next()) {
                 totalCount = rs.getInt(1);
             }
-
         } catch (SQLException e) {
             System.out.println("getTotalCount 에러 = " + e.getMessage());
         } finally {
@@ -85,9 +50,7 @@ public class BoardDAO {
 
         try {
             pstmt=conn.prepareStatement(sql);
-            //바인딩
             pstmt.setString(1, boardId);
-            //실행
             rs=pstmt.executeQuery();
 
             if(rs.next()) {
@@ -111,7 +74,6 @@ public class BoardDAO {
 
     //조회수 증가
     public void increaseViewCount(String boardId) {
-        BoardDTO dto = new BoardDTO();
         String sql= "update board set board_view_count = board_view_count + 1 where board_id=?";
 
         Connection conn = mysqlConnection.getConnection();
@@ -126,10 +88,9 @@ public class BoardDAO {
         } finally {
             mysqlConnection.dbClose(pstmt, conn);
         }
-
     }
 
-    //insert
+    //글 작성
     public void insertBoard(BoardDTO dto) {
         String sql = "insert into board values(default, ?, ?, ?, ?, ?, default, default, default)";
 
@@ -166,6 +127,7 @@ public class BoardDAO {
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, boardId);
             pstmt.execute();
+            System.out.println("딜리트 완");
         } catch (SQLException e) {
             System.out.println("deleteBoard 오류"+e.getMessage());
         } finally {
@@ -173,7 +135,9 @@ public class BoardDAO {
         }
     }
 
-    public void getPassword(String boardId) {
+    public boolean checkPassword(String boardId, String userPassword) {
+
+        System.out.println("BoardDAO.checkPassword");
 
         String sql="select board_password from board where board_id=?";
 
@@ -183,34 +147,26 @@ public class BoardDAO {
         try {
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, boardId);
-            pstmt.execute();
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    String dbPassword = rs.getString("board_password");
+                    return dbPassword.equals(userPassword);
+                }
+            }
         } catch (SQLException e) {
-            System.out.println("deleteBoard 오류"+e.getMessage());
+            System.out.println("checkPassword 오류"+e.getMessage());
         } finally {
             mysqlConnection.dbClose(pstmt, conn);
         }
-    }
-
-    public boolean checkPassword(String boardId, String password) {
-        System.out.println("BoardDAO.checkPassword");
-
-        BoardDTO findBoard = getData(boardId);
-//        getPassword(boardId);
-
-        System.out.println("findBoard = " + findBoard);
-
-        String dbPassword = findBoard.getBoard_password();
-
-        System.out.println("dbPassword = " + dbPassword);
-
-        return dbPassword.equals(password);
+        return false;
     }
 
 
     //수정
     public void modifyBoard(String BoardId, BoardDTO dto) {
 
-        String sql="update board set board_writer=?, board_title=?, board_content=? where board_id=?";
+        String sql="update board set board_writer=?, board_title=?, board_content=?, board_modification_date = now() where board_id=?";
 
         Connection conn = mysqlConnection.getConnection();
         PreparedStatement pstmt=null;
@@ -229,6 +185,106 @@ public class BoardDAO {
             mysqlConnection.dbClose(pstmt, conn);
         }
     }
+
+    //페이징
+    public List<BoardDTO> selectList(int startRow, int listLimit, String text){
+
+        List<BoardDTO> list = new ArrayList<>();
+
+        String sql = "SELECT * FROM board " +
+                "WHERE board_title LIKE ? " +
+                "ORDER BY board_registration_date DESC LIMIT ?, ?";
+
+        Connection conn = mysqlConnection.getConnection(); // 연결
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+
+        try {
+            pstmt = conn.prepareStatement(sql); // sql준비
+
+            pstmt.setString(1, "%" + text + "%");
+            pstmt.setInt(2, startRow);
+            pstmt.setInt(3, listLimit);
+
+            rs = pstmt.executeQuery(); // sql문 실행
+
+            while(rs.next()) {
+                BoardDTO dto = new BoardDTO();
+                dto.setBoard_id(rs.getInt("board_id"));
+                dto.setBoard_category(rs.getString("board_category"));
+                dto.setBoard_title(rs.getString("board_title"));
+                dto.setBoard_writer(rs.getString("board_writer"));
+                dto.setBoard_content(rs.getString("board_content"));
+                dto.setBoard_registration_date(rs.getTimestamp("board_registration_date"));
+                dto.setBoard_modification_date(rs.getTimestamp("board_modification_date"));
+                dto.setBoard_view_count(rs.getInt("board_view_count"));
+                list.add(dto);
+            }
+        } catch (SQLException e) {
+            System.out.println("selectList 오류"+e.getMessage());
+        } finally {
+            mysqlConnection.dbClose(rs, pstmt, conn);
+            System.out.println("db 종료 성공");
+        }
+
+        return list;
+    }
+
+
+
+
+    //검색 기능
+//    public List<BoardDTO> searchList(String start, String end, String category, String text) {
+//
+//        List<BoardDTO> list = new ArrayList<>();
+//        Connection conn = mysqlConnection.getConnection();
+//        PreparedStatement pstmt = null;
+//        ResultSet rs = null;
+////        String sql = "SELECT * FROM board WHERE 등록일 >= ? AND 등록일 <= ? AND 카테고리 = ? AND 제목 LIKE ?";
+//        String sql = "SELECT * FROM board"
+//                + "WHERE "
+//                + "    (board_registration_date >= ? AND board_registration_date <= ?)"
+//                + "    AND board_category = ?"
+//                + "    AND (board_title LIKE ? OR board_writer LIKE ? OR board_content LIKE ?)";
+//
+//        try {
+//            pstmt = conn.prepareStatement(sql);
+//
+//            pstmt.setString(1, start);
+//            pstmt.setString(2, end);
+//            pstmt.setString(3, category);
+//            pstmt.setString(4, "%" + text + "%");
+//            pstmt.setString(5, "%" + text + "%");
+//            pstmt.setString(6, "%" + text + "%");
+//            pstmt.execute();
+//
+//            rs = pstmt.executeQuery();
+//            while (rs.next()) {
+//                BoardDTO dto = new BoardDTO();
+//                dto.setBoard_id(rs.getInt("board_id"));
+//                dto.setBoard_category(rs.getString("board_category"));
+//                dto.setBoard_title(rs.getString("board_title"));
+//                dto.setBoard_writer(rs.getString("board_writer"));
+//                dto.setBoard_content(rs.getString("board_content"));
+//                dto.setBoard_registration_date(rs.getTimestamp("board_registration_date"));
+//                dto.setBoard_modification_date(rs.getTimestamp("board_modification_date"));
+//                dto.setBoard_view_count(rs.getInt("board_view_count"));
+//                list.add(dto);
+//                System.out.println("searchList 성공");
+//            }
+//
+//        } catch (SQLException e) {
+//            System.out.println("searchList 에러 = " + e.getMessage());
+//        } finally {
+//            mysqlConnection.dbClose(rs, pstmt, conn);
+//            System.out.println("searchList 종료 성공");
+//        }
+//
+//        return list;
+//    }
+
+
 
 
 
